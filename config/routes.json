@@ -1,0 +1,16 @@
+{
+    "routes": [
+        {
+            "path": "/admin/mail",
+            "controller": "ride\\web\\mail\\controller\\MailController#dependency",
+            "action": "indexAction",
+        "id": "admin.mail.index"
+        },
+        {
+            "path": "/admin/mail/send",
+            "controller": "ride\\web\\mail\\controller\\MailController#dependency",
+            "action": "sendAction",
+            "id": "admin.mail.send"
+        }
+    ]
+}

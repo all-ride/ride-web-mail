@@ -1,0 +1,73 @@
+{
+    "dependencies" : [
+        {
+            "interfaces": "ride\\web\\mail\\service\\OrmMailService",
+            "class": "ride\\web\\mail\\service\\OrmMailService",
+            "id": "dependency",
+            "calls": [
+                {
+                    "method": "setTransport",
+                    "arguments": [
+                        {
+                            "name" : "transport",
+                            "type" : "dependency",
+                            "properties" : {
+                                "interface" : "ride\\library\\mail\\transport\\Transport"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "method": "setNoResultString",
+                    "arguments": [
+                        {
+                            "name" : "noResultString",
+                            "type" : "parameter",
+                            "properties" : {
+                                "key": "mail.parser.no.result"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "method": "setLog",
+                    "arguments": [
+                        {
+                            "name" : "log",
+                            "type" : "dependency",
+                            "properties" : {
+                                "interface" : "ride\\library\\log\\Log"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "interfaces": [
+                "ride\\web\\base\\controller\\AbstractController",
+                "ride\\web\\mail\\controller\\MailController"
+            ],
+            "class": "ride\\web\\mail\\controller\\MailController",
+            "id": "dependency",
+            "calls": [
+                {
+                    "method": "setVariableProviders",
+                    "arguments": [
+                        {
+                            "name" : "providers",
+                            "type" : "call",
+                            "properties" : {
+                                "interface": "ride\\library\\dependency\\DependencyInjector",
+                                "method": "getByTag",
+                                "arguments" : {
+                                    "interface" : "ride\\web\\mail\\provider\\VariableProvider"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
