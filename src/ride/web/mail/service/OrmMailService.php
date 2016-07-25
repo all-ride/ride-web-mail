@@ -6,6 +6,7 @@ use ride\library\mail\MailAddress;
 use ride\library\mail\transport\Transport;
 use ride\library\log\Log;
 use ride\web\mail\service\MailParser;
+use ride\web\mail\orm\entry\MailEntry;
 
 /**
  * OrmMailService
@@ -82,24 +83,24 @@ class OrmMailService {
 
         $message->addCc($cc);
 
-        $cc = $mail->getParsedCc($data);
-        if ($cc) {
-            foreach ($cc as $mailAddress) {
-                $message->addCc((string) $mailAddress);
-            }
-        }
+        // $cc = $this->parse($mail->getCc(), $data);
+        // if ($cc) {
+        //     foreach ($cc as $mailAddress) {
+        //         $message->addCc((string) $mailAddress);
+        //     }
+        // }
 
         $message->addBcc($bcc);
 
-        $bcc = $mail->getParsedBcc($data);
-        if ($bcc) {
-            foreach ($bcc as $mailAddress) {
-                $message->addBcc((string) $mailAddress);
-            }
-        }
+        // $bcc = $this->parse($mail->getBcc(), $data);
+        // if ($bcc) {
+        //     foreach ($bcc as $mailAddress) {
+        //         $message->addBcc((string) $mailAddress);
+        //     }
+        // }
 
         $this->transport->send($message);
-        $this->log->logInformation('Mail sent', "From: {$sender} - To: {$recipient} - Subject: {$subject}", 'ormMail');
+        $this->log->logInformation('Mail sent', "From: {$parsedSender} - To: {$recipient} - Subject: {$parsedSubject}", 'ormMail');
     }
 
     /**
@@ -137,31 +138,10 @@ class OrmMailService {
      * @return string       The parsed key
      */
     protected function getParsedValue($key, $data) {
-        // Set the value default
         $value = $this->noResultString ? $this->noResultString : '[[' . $key . ']]';
 
-        // Fixed key
         if (is_array($data) && array_key_exists($key, $data)) {
             $value = $data[$key];
-        } else {
-            // Getter chain key
-            $getters = explode('.', $key);
-            $value = $data;
-            while ($getter = current($getters)) {
-                if (is_array($value)) {
-                    if (!array_key_exists($getter, $value)) {
-                        break;
-                    }
-
-                    $value = $value[$getter];
-                } else if (is_object($value) && $value instanceof GenericEntry) {
-                    $value = $value->$getter;
-                } else {
-                    break;
-                }
-
-                next($getters);
-            }
         }
 
         return $value;
