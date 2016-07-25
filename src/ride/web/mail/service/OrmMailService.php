@@ -99,6 +99,7 @@ class OrmMailService {
         }
 
         $this->transport->send($message);
+        $this->log->logInformation('Mail sent', "From: {$sender} - To: {$recipient} - Subject: {$subject}", 'ormMail');
     }
 
     /**
