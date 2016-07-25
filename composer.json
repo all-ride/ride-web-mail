@@ -9,7 +9,7 @@
         },
     ],
     "require": {
-        "ride/lib-mail": "*",
+        "ride/lib-mail": "*"
     },
     "autoload": {
         "psr-0": {
