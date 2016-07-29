@@ -5,6 +5,7 @@ namespace ride\web\mail\service;
 use ride\library\mail\MailAddress;
 use ride\library\mail\transport\Transport;
 use ride\library\log\Log;
+use ride\library\config\Config;
 use ride\web\mail\service\MailParser;
 use ride\web\mail\orm\entry\MailEntry;
 
@@ -29,6 +30,12 @@ class OrmMailService {
      */
     protected $log;
 
+    public function __construct(Transport $transport, Log $log, Config $config) {
+        $this->transport = $transport;
+        $this->log = $log;
+        $this->config = $config;
+    }
+
     /**
      * Set the no result string via the dependency injector
      *
@@ -36,24 +43,6 @@ class OrmMailService {
      */
     public function setNoResultString($noResultString = null) {
         $this->noResultString = $noResultString;
-    }
-
-    /**
-     * Set transport via the dependency injector
-     *
-     * @var Transport $transport
-     */
-    public function setTransport(Transport $transport) {
-        $this->transport = $transport;
-    }
-
-    /**
-     * Set the log via the dependency injector
-     *
-     * @var Log $log
-     */
-    public function setLog(Log $log) {
-        $this->log = $log;
     }
 
     /**
@@ -69,7 +58,7 @@ class OrmMailService {
     public function sendMail($recipient, MailEntry $mail, $data = array(), $cc = array(), $bcc = array(), string $renderedBody = null) {
         $body = $renderedBody ? $renderedBody : $mail->getBody();
         $parsedBody = $this->parse($body, $data);
-        $parsedSender = $this->parse($mail->getSender(), $data);
+        $parsedSender = $this->parse((string) $mail->getSender(), $data);
         $parsedSubject = $this->parse($mail->getSubject(), $data);
 
         $message = $this->transport->createMessage();
@@ -99,8 +88,13 @@ class OrmMailService {
         //     }
         // }
 
-        $this->transport->send($message);
-        $this->log->logInformation('Mail sent', "From: {$parsedSender} - To: {$recipient} - Subject: {$parsedSubject}", 'ormMail');
+        $mailLog = "From: {$parsedSender} - To: {$recipient} - Subject: {$parsedSubject}";
+        if ($this->config->get('orm.mail.send')) {
+            $this->transport->send($message);
+            $this->log->logInformation('Mail sent', $mailLog, 'orm.mail');
+        } else {
+            $this->log->logDebug('Dummy mail sent', $mailLog, 'orm.mail');
+        }
     }
 
     /**

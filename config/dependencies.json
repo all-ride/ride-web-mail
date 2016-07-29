@@ -6,18 +6,6 @@
             "id": "dependency",
             "calls": [
                 {
-                    "method": "setTransport",
-                    "arguments": [
-                        {
-                            "name" : "transport",
-                            "type" : "dependency",
-                            "properties" : {
-                                "interface" : "ride\\library\\mail\\transport\\Transport"
-                            }
-                        }
-                    ]
-                },
-                {
                     "method": "setNoResultString",
                     "arguments": [
                         {
@@ -25,18 +13,6 @@
                             "type" : "parameter",
                             "properties" : {
                                 "key": "mail.parser.no.result"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "method": "setLog",
-                    "arguments": [
-                        {
-                            "name" : "log",
-                            "type" : "dependency",
-                            "properties" : {
-                                "interface" : "ride\\library\\log\\Log"
                             }
                         }
                     ]
