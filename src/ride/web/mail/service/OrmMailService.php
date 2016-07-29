@@ -88,7 +88,7 @@ class OrmMailService {
         //     }
         // }
 
-        $mailLog = "From: {$parsedSender} - To: {$recipient} - Subject: {$parsedSubject}";
+        $mailLog = "From: {$parsedSender} - Subject: {$parsedSubject} - To: {$recipient}";
         if ($this->config->get('orm.mail.send')) {
             $this->transport->send($message);
             $this->log->logInformation('Mail sent', $mailLog, 'orm.mail');
