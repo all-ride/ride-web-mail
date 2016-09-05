@@ -8,6 +8,7 @@ use ride\library\log\Log;
 use ride\library\config\Config;
 use ride\web\mail\service\MailParser;
 use ride\web\mail\orm\entry\MailEntry;
+use ride\library\mail\exception\MailException;
 
 /**
  * OrmMailService
@@ -90,9 +91,17 @@ class OrmMailService {
 
         $mailLog = "From: {$parsedSender} - Subject: {$parsedSubject} - To: {$recipient}";
         if ($this->config->get('orm.mail.send')) {
-            $this->transport->send($message);
-            $this->log->logInformation('Mail sent', $mailLog, 'orm.mail');
+            try {
+                $this->transport->send($message);
+                $this->log->logInformation('Mail sent', $mailLog, 'orm.mail');
+            } catch (MailException $e) {
+                $this->log->logInformation('Mail failed to send', $mailLog, 'orm.mail');
+            }
         } else {
+            $mailLog .= "\n";
+            $mailLog .= $parsedBody;
+            $mailLog .= "\n";
+
             $this->log->logDebug('Dummy mail sent', $mailLog, 'orm.mail');
         }
     }
