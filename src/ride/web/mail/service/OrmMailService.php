@@ -95,7 +95,7 @@ class OrmMailService {
                 $this->transport->send($message);
                 $this->log->logInformation('Mail sent', $mailLog, 'orm.mail');
             } catch (MailException $e) {
-                $this->log->logInformation('Mail failed to send', $mailLog, 'orm.mail');
+                $this->log->logInformation('Mail failed to send', $e, 'orm.mail');
             }
         } else {
             $mailLog .= "\n";
