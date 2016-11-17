@@ -2,11 +2,13 @@
 
 namespace ride\web\mail\service;
 
-use ride\library\mail\MailAddress;
+use ride\library\i18n\I18n;
 use ride\library\mail\transport\Transport;
 use ride\library\log\Log;
 use ride\library\config\Config;
-use ride\web\mail\service\MailParser;
+use ride\library\mvc\Request;
+use ride\library\system\System;
+use ride\library\template\TemplateFacade;
 use ride\web\mail\orm\entry\MailEntry;
 use ride\library\mail\exception\MailException;
 
@@ -19,7 +21,13 @@ class OrmMailService {
      * The string to use when a token is not matched
      * @var string
      */
-    private $noResultString;
+    protected $noResultString;
+
+    /**
+     * The main mail template
+     * @var string
+     */
+    protected $mainTemplate;
 
     /**
      * @var Transport
@@ -31,34 +39,81 @@ class OrmMailService {
      */
     protected $log;
 
-    public function __construct(Transport $transport, Log $log, Config $config) {
+    /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
+     * @var TemplateFacade
+     */
+    protected $templateFacade;
+
+    /**
+     * @var System
+     */
+    protected $system;
+
+    /**
+     * @var I18n
+     */
+    private $i18n;
+
+    /**
+     * @var Request
+     */
+    private $request;
+
+    /**
+     * OrmMailService constructor.
+     *
+     * @param Transport      $transport
+     * @param Log            $log
+     * @param Config         $config
+     * @param TemplateFacade $templateFacade
+     * @param System         $system
+     * @param I18n           $i18n
+     * @param Request        $request
+     */
+    public function __construct(Transport $transport, Log $log, Config $config, TemplateFacade $templateFacade, System $system, I18n $i18n, Request $request) {
         $this->transport = $transport;
         $this->log = $log;
         $this->config = $config;
+        $this->templateFacade = $templateFacade;
+        $this->system = $system;
+        $this->i18n = $i18n;
+        $this->request = $request;
     }
 
     /**
      * Set the no result string via the dependency injector
      *
-     * @var NoResult $noResultString
+     * @var string $noResultString
      */
     public function setNoResultString($noResultString = null) {
         $this->noResultString = $noResultString;
     }
 
     /**
+     * @param null $mainTemplate
+     */
+    public function setMainTemplate($mainTemplate = null) {
+        $this->mainTemplate = $mainTemplate;
+    }
+
+    /**
      * Send a mail
      *
-     * @param string      $recipient  The recipient to send the mail to
-     * @param MailEntry   $mail       The mail
-     * @param mixed       $data       An array or Orm Entry containing data to parse the mail with
-     * @param array       $cc         Optional array with CC addresses
-     * @param array       $bcc        Optional array with BCC addresses
-     * @param string|null $bcc        Optional rendered body which will be used instead of the mail's default body
+     * @param string    $recipient The recipient to send the mail to
+     * @param MailEntry $mail      The mail
+     * @param mixed     $data      An array or Orm Entry containing data to parse the mail with
+     * @param array     $cc        Optional array with CC addresses
+     * @param array     $bcc       Optional rendered body which will be used instead of the mail's default body
      */
-    public function sendMail($recipient, MailEntry $mail, $data = array(), $cc = array(), $bcc = array(), string $renderedBody = null) {
-        $body = $renderedBody ? $renderedBody : $mail->getBody();
+    public function sendMail($recipient, MailEntry $mail, $data = array(), $cc = array(), $bcc = array()) {
+        $body = $mail->getBody();
         $parsedBody = $this->parse($body, $data);
+        $renderedBody = $this->renderBody($parsedBody);
         $parsedSender = $this->parse((string) $mail->getSender(), $data);
         $parsedSubject = $this->parse($mail->getSubject(), $data);
 
@@ -69,7 +124,7 @@ class OrmMailService {
         $message->setReturnPath($parsedSender);
         $message->setIsHtmlMessage(true);
         $message->setSubject($parsedSubject);
-        $message->setMessage($parsedBody);
+        $message->setMessage($renderedBody);
 
         $message->addCc($cc);
 
@@ -99,7 +154,7 @@ class OrmMailService {
             }
         } else {
             $mailLog .= "\n";
-            $mailLog .= $parsedBody;
+            $mailLog .= $renderedBody;
             $mailLog .= "\n";
 
             $this->log->logDebug('Dummy mail sent', $mailLog, 'orm.mail');
@@ -130,6 +185,29 @@ class OrmMailService {
         }
 
         return $subject;
+    }
+
+    /**
+     * @param $body
+     *
+     * @return string
+     */
+    public function renderBody($body) {
+        // TODO: This should probably be a separate service
+        if (!$this->mainTemplate) {
+            return $body;
+        }
+
+        $variables = array (
+            'app' => array (
+                'locale' => $this->i18n->getLocale()->getCode(),
+                'url' => $this->request->getBaseUrl(),
+                'system' => $this->system,
+            ),
+            'content' => $body,
+        );
+
+        return $this->templateFacade->render($this->templateFacade->createTemplate($this->mainTemplate, $variables));
     }
 
     /**
