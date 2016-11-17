@@ -1,0 +1,52 @@
+<models>
+    <model name="Mail" entryClass="ride\web\mail\orm\entry\MailEntry">
+        <field name="title" type="string" localized="true">
+            <option name="label.title" value="label.title" />
+            <option name="label.description" value="label.mail.title.description" />
+            <option name="scaffold.search" value="1"/>
+            <option name="scaffold.order" value="1"/>
+        </field>
+        <field name="subject" type="string" localized="true">
+            <option name="label.name" value="label.subject" />
+            <option name="label.description" value="label.subject.description" />
+            <option name="scaffold.search" value="1"/>
+            <option name="scaffold.order" value="1"/>
+            <validator name="required"/>
+        </field>
+        <field name="sender" model="MailAddress" relation="belongsTo">
+            <option name="label.name" value="label.sender" />
+            <option name="scaffold.search" value="1"/>
+            <option name="scaffold.order" value="1"/>
+        </field>
+        <field name="body" type="wysiwyg" localized="true">
+            <option name="label.name" value="label.body" />
+            <option name="label.description" value="label.body.description" />
+            <validator name="required"/>
+        </field>
+        <field name="cc" model="MailAddress" relation="hasMany">
+            <option name="label.name" value="label.cc" />
+            <option name="scaffold.form.type" value="collection" />
+        </field>
+        <field name="bcc" model="MailAddress" relation="hasMany">
+            <option name="label.name" value="label.bcc" />
+            <option name="scaffold.form.type" value="collection" />
+        </field>
+
+        <format name="title">{info}</format>
+        <format name="teaser">{sender.email}</format>
+
+        <option name="scaffold.expose" value="true" />
+        <option name="rest.expose" value="true"/>
+        <option name="scaffold.title" value="title.mails" />
+        <option name="order.field" value="title" />
+    </model>
+    <model name="MailAddress" entryClass="ride\web\mail\orm\entry\MailAddressEntry">
+        <field name="email" type="string">
+            <option name="label.name" value="label.email" />
+            <validator name="required"/>
+        </field>
+        <field name="displayName" type="string">
+            <option name="label.name" value="label.name" />
+        </field>
+    </model>
+</models>

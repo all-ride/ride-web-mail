@@ -1,0 +1,7 @@
+{
+    "title.mails": "Mails",
+    "label.mail.from.name": "Afzender naam",
+    "label.mail.from.name.description": "De naam van de afzender.",
+    "label.mail.from": "Afzender email adres",
+    "label.mail.from.description": "Het email adres van de afzender."
+}

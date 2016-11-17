@@ -1,0 +1,20 @@
+{
+    "name": "ride/web-mail",
+    "description": "Webmail integration",
+    "license": "MIT",
+    "version": "1.0.0",
+    "authors": [
+        {
+            "name": "Brent Roose",
+            "email": "brent@statik.be"
+        }
+    ],
+    "require": {
+        "ride/lib-mail": "*"
+    },
+    "autoload": {
+        "psr-0": {
+            "ride\\web\\": ["src/"]
+        }
+    }
+}
