@@ -16,6 +16,18 @@
                             }
                         }
                     ]
+                },
+                {
+                    "method": "setMainTemplate",
+                    "arguments": [
+                        {
+                            "name" : "mainTemplate",
+                            "type" : "parameter",
+                            "properties" : {
+                                "key": "mail.main.template"
+                            }
+                        }
+                    ]
                 }
             ]
         },
