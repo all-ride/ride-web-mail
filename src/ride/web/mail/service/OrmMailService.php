@@ -126,6 +126,10 @@ class OrmMailService {
         $message->setSubject($parsedSubject);
         $message->setMessage($renderedBody);
 
+        foreach ($mail->getAttachments() as $file) {
+            $message->addAttachment($file);
+        }
+
         $message->addCc($cc);
 
         // $cc = $this->parse($mail->getCc(), $data);
@@ -201,7 +205,9 @@ class OrmMailService {
         $variables = array (
             'app' => array (
                 'locale' => $this->i18n->getLocale()->getCode(),
-                'url' => $this->request->getBaseUrl(),
+                'url' => [
+                    'base' => $this->request->getBaseUrl(),
+                ],
                 'system' => $this->system,
             ),
             'content' => $body,
